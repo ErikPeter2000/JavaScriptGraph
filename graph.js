@@ -87,12 +87,13 @@ export class NodeData extends ShadowObject{
 
 export class ArcData extends ShadowObject{
     #strokeThickness = 2;
-    constructor({fromId, toId, color, arrowStyle}){
+    constructor({fromId, toId, color, arrowStyle, label}){
         super();
         this.fromId = fromId;
         this.toId = toId;
         this.color = color || Palette.arcColor;
         this.arrowStyle = arrowStyle; // forward, reverse, cross
+        this.label = label;
     }
 
     drawArrowhead(canvas, ctx, from, to){
@@ -109,6 +110,20 @@ export class ArcData extends ShadowObject{
         ctx.lineTo(-arrowSize*0.5,0);
         ctx.closePath();
         ctx.stroke();
+        ctx.restore();
+    }
+
+    drawLabel(canvas, ctx, from, to){
+        let midPoint = from.add(to).mul(0.5);
+        let offset = from.sub(to).normalise().rotate(Math.PI/2).mul(20);
+        midPoint.addSelf(offset);
+        ctx.save();
+        ctx.translate(midPoint.x, midPoint.y);
+        ctx.font = "20px Arial";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillStyle = this.color;
+        ctx.fillText(this.label, 0, 0);
         ctx.restore();
     }
 
@@ -141,6 +156,9 @@ export class ArcData extends ShadowObject{
         ctx.strokeStyle = this.color;
         ctx.fillStyle = this.color;
         this.drawShape(canvas, ctx, graph);
+        if (this.label){
+            this.drawLabel(canvas, ctx, graph.nodeData[this.fromId].position, graph.nodeData[this.toId].position);
+        }
     }
 
     drawShape(canvas, ctx, graph){

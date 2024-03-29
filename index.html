@@ -35,13 +35,13 @@
                 
             ],
             arcs: [
-                {fromId: 0, toId: 1, arrowStyle: 'forward'},
+                {fromId: 0, toId: 1, arrowStyle: 'forward', label:"?", color: "#bbb"},
                 {fromId: 1, toId: 2},
                 {fromId: 2, toId: 3, arrowStyle: 'reverse'},
                 {fromId: 3, toId: 4, arrowStyle: 'reverse'},
 
                 {fromId: 1, toId: 5, arrowStyle: 'reverse'},
-                {fromId: 5, toId: 6, arrowStyle: 'cross'},
+                {fromId: 5, toId: 6, arrowStyle: 'cross', color: "#d00"},
             ]
         }
         let graph = Graph.parseObject(data);
