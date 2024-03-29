@@ -27,7 +27,6 @@ export class GraphViewer{
 
     // graphics
     drawBackground(){
-        //hex grid
         const r3 = Math.sqrt(3);
         const r32 = r3 / 2;
         this.ctx.fillStyle = Palette.backgroundColor;
