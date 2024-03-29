@@ -26,11 +26,13 @@ export class NodeData extends ShadowObject{
     #textPadding = 10;
     #strokeThickness = 2;
     #font = "20px Arial";
+    #displayRadius = 10;
 
     constructor({position, strokeColor, fillColor, label, radius} = {}){
         super();
         this.position = position || new Vector2(0, 0);
         this.strokeColor = strokeColor || Palette.nodeStrokeColor;
+        this.textColor = Palette.nodeTextColor;
         this.fillColor = fillColor || Palette.nodeFillColor;
         this.label = label || null;
         this.radius = radius || 10;
@@ -48,14 +50,20 @@ export class NodeData extends ShadowObject{
         this.clearShadow(ctx);
     }
 
-    #calcCircleRadius(ctx){
-        let textLength = ctx.measureText(this.label).width;
-        return this.fixedRadius ? this.radius : Math.max(this.radius, textLength/2 + this.#textPadding);
+    isClicked(pos){
+        return pos.sub(this.position).length <= this.#displayRadius;
     }
 
-    drawShape(canvas, ctx, graph){
+    #calcCircleRadius(ctx){
+        let textLength = ctx.measureText(this.label).width;
+        let radius =this.fixedRadius ? this.radius : Math.max(this.radius, textLength/2 + this.#textPadding);
+        this.#displayRadius = radius;
+        return radius;
+    }
+
+    drawShape(canvas, ctx, graph, selected){
         ctx.fillStyle = this.fillColor;
-        ctx.strokeStyle = this.strokeColor;
+        ctx.strokeStyle = selected?Palette.nodeSelectColor:this.strokeColor;
         ctx.lineWidth = this.#strokeThickness;
         let radius = this.#calcCircleRadius(ctx);
 
@@ -72,8 +80,8 @@ export class NodeData extends ShadowObject{
         }
     }
 
-    draw(canvas, ctx, graph){
-        this.drawShape(canvas, ctx, graph);
+    draw(canvas, ctx, graph, selected=false){
+        this.drawShape(canvas, ctx, graph, selected);
     }
 }
 
@@ -203,12 +211,12 @@ export class Graph{
         for (let arc of this.arcData){
             arc.drawShadow(canvas, ctx, this);
         }
-        for (let node in this.nodeData){
-            this.nodeData[node].drawShadow(canvas, ctx, this);
+        for (let nodeId in this.nodeData){
+            this.nodeData[nodeId].drawShadow(canvas, ctx, this);
         }
     }
 
-    draw(canvas, ctx){
+    draw(canvas, ctx, selectedNodeId){
         const drawShadow = true;
         if (drawShadow){
             this.drawShadow(canvas, ctx);
@@ -216,8 +224,8 @@ export class Graph{
         for (let arc of this.arcData){
             arc.draw(canvas, ctx, this);
         }
-        for (let node in this.nodeData){
-            this.nodeData[node].draw(canvas, ctx, this);
+        for (let nodeId in this.nodeData){
+            this.nodeData[nodeId].draw(canvas, ctx, this, selectedNodeId === nodeId);
         }
     }
 

@@ -11,10 +11,15 @@ export class GraphViewer{
         this.graph = graph || new Graph();
         this.rendering = false;
         this.currentId = 0;
-        addEventListener('resize', () => this.canvasResize());
+        this.inputState = {
+            mouseDown: false,
+            mousePos: new Vector2(0, 0)
+        };
+        this.selectedNodeId = -1;
+        this.setupListeners();
         this.canvasResize();
     }
-    
+
     canvasResize(){
         this.canvas.width = window.innerWidth;
         this.canvas.height = window.innerHeight;
@@ -47,7 +52,7 @@ export class GraphViewer{
         this.ctx.stroke();
     }
     drawGraph(){
-        this.graph.draw(this.canvas, this.ctx);
+        this.graph.draw(this.canvas, this.ctx, this.selectedNodeId);
     }
     renderFrame(){
         if (this.rendering){
@@ -74,5 +79,38 @@ export class GraphViewer{
         let arc = new ArcData({idFrom, idTo});
         this.graph.addArc(arc);
         return arc;
+    }
+
+    // input
+    setupListeners(){
+        addEventListener('mousedown', (e) => this.onMouseDown(e));
+        addEventListener('mouseup', (e) => this.onMouseUp(e));
+        addEventListener('mousemove', (e) => this.onMouseMove(e));
+        addEventListener('resize', () => this.canvasResize());
+    }
+    onMouseDown(event){
+        if (event.button === 0){
+            this.inputState.mouseDown = true;
+        }
+        this.clickSelection();
+    }
+    onMouseUp(event){
+        if (event.button === 0){
+            this.inputState.mouseDown = false;
+        }
+    }
+    onMouseMove(event){
+        this.inputState.mousePos = new Vector2(event.clientX, event.clientY);
+    }
+    clickSelection(){
+        for (let node in this.graph.nodeData){
+            if (this.graph.nodeData[node].isClicked(this.inputState.mousePos)){
+                this.selectedNodeId = node;
+                console.log('selected node', node);
+                return;
+            }
+        }
+        this.selectedNodeId = -1;
+        console.log('deselected');
     }
 }

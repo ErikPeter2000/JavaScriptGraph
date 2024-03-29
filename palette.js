@@ -14,4 +14,10 @@ export class Palette{
     static get arcColor(){
         return "#a6dff2";
     }
+    static get nodeTextColor(){
+        return "#a6dff2";
+    }
+    static get nodeSelectColor(){
+        return "#c44";
+    }
 }
