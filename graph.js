@@ -106,7 +106,7 @@ export class ArcData extends ShadowObject {
         let d1 = pos.sub(from).length;
         let d2 = pos.sub(to).length;
         let d = from.sub(to).length;
-        let sum = d1+d2;
+        let sum = d1 + d2;
         return sum <= d + this.#clickThreshold;
     }
 
@@ -196,16 +196,21 @@ export class ArcData extends ShadowObject {
         ctx.moveTo(fromOffset.x, fromOffset.y);
         ctx.lineTo(toOffset.x, toOffset.y);
         ctx.stroke();
-        switch (this.arrowStyle) {
-            case "forward":
-                this.drawArrowhead(canvas, ctx, fromOffset, toOffset);
-                break;
-            case "reverse":
-                this.drawArrowhead(canvas, ctx, toOffset, fromOffset);
-                break;
-            case "cross":
-                this.drawCross(canvas, ctx, fromOffset, toOffset);
-                break;
+        if (this.arrowStyle) {
+            let styles = this.arrowStyle.split("-");
+            for (let style of styles) {
+                switch (style) {
+                    case "forward":
+                        this.drawArrowhead(canvas, ctx, fromOffset, toOffset);
+                        break;
+                    case "reverse":
+                        this.drawArrowhead(canvas, ctx, toOffset, fromOffset);
+                        break;
+                    case "cross":
+                        this.drawCross(canvas, ctx, fromOffset, toOffset);
+                        break;
+                }
+            }
         }
     }
 }
@@ -246,6 +251,21 @@ export class Graph {
         this.arcData = this.arcData.filter(arc => arc.fromId !== id && arc.toId !== id);
         delete this.nodeData[id];
         delete this.adjacencyList[id];
+    }
+
+    getNeighbours(id, bidirectional = false) {
+        if (bidirectional) {
+            let nodes = this.adjacencyList[id];
+            for (let key in this.adjacencyList) {
+                if (this.adjacencyList[key].includes(id)) {
+                    nodes.push(key);
+                }
+            }
+            return nodes;
+        }
+        else {
+            return this.adjacencyList[id];
+        }
     }
 
     drawShadow(canvas, ctx) {

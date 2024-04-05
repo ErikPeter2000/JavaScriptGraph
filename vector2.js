@@ -15,6 +15,10 @@ export class Vector2{
     get angle(){
         return Math.atan2(this.y, this.x);
     }
+    /** Returns a new vector with coordinates multiplied by -1 */
+    negative(){
+        return new Vector2(-this.x, -this.y);
+    }
     /** Returns a new normalised vector, or a zero-vector if its magnitude is 0. */
     normalise(){
         let length = this.length;
@@ -100,7 +104,7 @@ export class Vector2{
     }
     /** Returns a vector with box-random coordinates */
     static random(x, y){
-        return new Vector2(Math.random()*(x || 1), Math.random()*(y || 1));
+        return new Vector2(Math.random()*(x ?? 1), Math.random()*(y ?? 1));
     }
     /** Returns a unit vector with random direction */
     static unitRandom(){

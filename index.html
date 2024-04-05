@@ -17,35 +17,36 @@
 <body>
     <canvas id="canvas"></canvas>
     <script type="module">
-        import {GraphViewer} from './graph-viewer.js';
+        import {GraphViewer, ForceDirectedGraphCalculator} from './graph-viewer.js';
         import {Graph, NodeData, ArcData} from './graph.js';
         import {Vector2} from './vector2.js';
         const canvas = document.getElementById('canvas');
-        let data = {
-            nodes: [
-                {position: {x: 100, y: 200}, label: 'A'},
-                {position: {x: 200, y: 200}, label: 'B'},
-
-                {position: {x: 300, y: 100}, label: 'C'},
-                {position: {x: 400, y: 100}, label: 'D'},
-                {position: {x: 500, y: 100}, label: 'E'},
-
-                {position: {x: 300, y: 300}, label: 'F'},
-                {position: {x: 400, y: 300}, label: 'G'},               
-                
-            ],
-            arcs: [
-                {fromId: 0, toId: 1, arrowStyle: 'forward', label:"?", color: "#bbb"},
-                {fromId: 1, toId: 2},
-                {fromId: 2, toId: 3, arrowStyle: 'reverse'},
-                {fromId: 3, toId: 4, arrowStyle: 'reverse'},
-
-                {fromId: 1, toId: 5, arrowStyle: 'reverse'},
-                {fromId: 5, toId: 6, arrowStyle: 'cross', color: "#d00"},
-            ]
+        function createRandomGraph(nodeCount, arcCount){
+            let data = {
+                nodes: [],
+                arcs: []
+            }
+            for(let i = 0; i < nodeCount; i++){
+                let position = Vector2.random(canvas.width, canvas.height);
+                data.nodes.push({position: {x: position.x, y: position.y}, label: i.toString()});
+            }
+            for(let i = 0; i < arcCount; i++){
+                let from = Math.floor(Math.random() * nodeCount);
+                let to = Math.floor(Math.random() * nodeCount);
+                if(from != to){
+                    data.arcs.push({fromId: from, toId: to, label: i.toString()});
+                }
+                else{
+                    i--;
+                }
+            }
+            return data;
         }
+        let data = createRandomGraph(40, 30);
         let graph = Graph.parseObject(data);
+        graph = ForceDirectedGraphCalculator.repositionNodes(graph, canvas.width, canvas.height);
         const graphViewer = new GraphViewer(canvas, graph);
+        graphViewer.recalculatePositions();
         graphViewer.startRendering();
     </script>
 </body>

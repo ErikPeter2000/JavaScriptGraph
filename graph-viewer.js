@@ -55,6 +55,7 @@ export class GraphViewer {
     constructor(canvas, graph) {
         this.viewPosition = new Vector2(0, 0);
         this.viewOffset = new Vector2(0, 0);
+        this.viewScale = 1;
         this.canvas = canvas;
         this.ctx = canvas.getContext('2d');
         this.graph = graph || new Graph();
@@ -75,13 +76,35 @@ export class GraphViewer {
         this.canvasResize();
         this.infoText.newText("Welcome to Graph Viewer!");
     }
-    get viewPreview(){
+    get viewPreview() {
         return this.viewPosition.add(this.viewOffset);
     }
 
     canvasResize() {
         this.canvas.width = window.innerWidth;
         this.canvas.height = window.innerHeight;
+    }
+    recalculatePositions() {
+        let pad = new Vector2(30, 30);
+        let minX = Number.MAX_VALUE;
+        let minY = Number.MAX_VALUE;
+        let maxX = Number.MIN_VALUE;
+        let maxY = Number.MIN_VALUE;
+        for (let nodeId in this.graph.nodeData) {
+            let node = this.graph.nodeData[nodeId];
+            minX = Math.min(minX, node.position.x);
+            minY = Math.min(minY, node.position.y);
+            maxX = Math.max(maxX, node.position.x);
+            maxY = Math.max(maxY, node.position.y);
+        }
+        let width = maxX - minX + 2 * pad.x;
+        let height = maxY - minY + 2 * pad.y;
+        let scale = new Vector2(this.canvas.width / width, this.canvas.height / height);
+        for (let nodeId in this.graph.nodeData) {
+            let node = this.graph.nodeData[nodeId];
+            node.position.x = (node.position.x - minX) * scale.x + pad.x;
+            node.position.y = (node.position.y - minY) * scale.y + pad.y;
+        }
     }
 
     // graphics
@@ -97,9 +120,9 @@ export class GraphViewer {
         let cellsY = Math.ceil(this.canvas.height / this.#gridSize / r3);
         let startY = this.viewPreview.y % (this.#gridSize * r3) - this.#gridSize * r3;
         this.ctx.beginPath();
-        for (let x = -1; x < cellsX+3; x++) {
+        for (let x = -1; x < cellsX + 3; x++) {
             let even = x % 2 === 0;
-            for (let y = 0; y < cellsY+1; y++) {
+            for (let y = 0; y < cellsY + 1; y++) {
                 let cx = x * 1.5 * this.#gridSize + startX;
                 let cy = y * r3 * this.#gridSize + (even ? 0 : r32 * this.#gridSize) + startY;
                 this.ctx.moveTo(cx, cy + this.#gridSize * r32);
@@ -115,6 +138,9 @@ export class GraphViewer {
         this.ctx.save();
         let pos = this.viewPosition.add(this.viewOffset);
         this.ctx.translate(pos.x, pos.y);
+        this.ctx.scale(this.viewScale, this.viewScale);
+        this.graph = ForceDirectedGraphCalculator.repositionNodes(this.graph, this.canvas.width, this.canvas.height, 10);
+        //this.recalculatePositions();
         this.graph.draw(this.canvas, this.ctx, this.selection);
         this.ctx.restore();
     }
@@ -153,6 +179,7 @@ export class GraphViewer {
         addEventListener('mousemove', (e) => this.onMouseMove(e));
         addEventListener('resize', () => this.canvasResize());
         addEventListener('keydown', (e) => this.onKeyDown(e));
+        addEventListener('wheel', (e) => this.onScroll(e));
         addEventListener('contextmenu', (e) => e.preventDefault());
     }
     onMouseDown(event) {
@@ -160,10 +187,23 @@ export class GraphViewer {
             this.cursorState.mouseDown = true;
             this.cursorState.clickPos = this.cursorState.mousePos.copy();
         }
-        else if (event.button === 2){
+        else if (event.button === 2) {
             this.resetView();
         }
         this.clickSelection();
+    } 
+    onScroll(event) {
+        let delta = event.deltaY;
+        let scaleChange;
+        if (delta > 0) {
+            scaleChange = 0.9;
+        } else {
+            scaleChange = 1.1;
+        }
+        let cursorPosition = new Vector2(event.clientX, event.clientY);
+        let direction = cursorPosition.sub(this.viewPosition);
+        this.viewPosition = this.viewPosition.add(direction.mul(1 - scaleChange));
+        this.viewScale *= scaleChange;
     }
     onMouseUp(event) {
         if (event.button === 0) {
@@ -187,23 +227,25 @@ export class GraphViewer {
         this.cursorState.mousePos = new Vector2(event.clientX, event.clientY);
         this.drag(event);
     }
-    drag(event){
+    drag(event) {
         if (!this.cursorState.mouseDown) return
         let delta = this.cursorState.mousePos.sub(this.cursorState.clickPos);
         this.viewOffset = delta;
     }
-    finaliseDrag(){
-        if (this.cursorState.mouseDown) return 
+    finaliseDrag() {
+        if (this.cursorState.mouseDown) return
         this.viewPosition = this.viewPosition.add(this.viewOffset);
         this.viewOffset = Vector2.origin();
     }
-    resetView(){
+    resetView() {
         this.viewPosition = Vector2.origin();
+        this.viewOffset = Vector2.origin();
+        this.viewScale = 1;
         this.infoText.newText("View reset");
     }
     clickSelection() {
         let found = false;
-        let relativePos = this.cursorState.mousePos.sub(this.viewPreview);
+        let relativePos = this.cursorState.mousePos.sub(this.viewPreview).div(this.viewScale);
         if (this.cursorState.selectMode & SelectMode.NODE) {
             for (let nodeId in this.graph.nodeData) {
                 if (this.graph.nodeData[nodeId].isClicked(relativePos) && !this.selection.nodes.includes(nodeId)) {
@@ -219,8 +261,7 @@ export class GraphViewer {
                     for (let arc of this.graph.arcData) {
                         let id = { fromId: arc.fromId, toId: arc.toId };
                         if (arc.isClicked(relativePos, this.graph) && !this.selection.arcs.includes(id)) {
-                            this.selection.arcs[0] = id
-                            console.log(this.selection.arcs);
+                            this.selection.arcs[0] = id;
                             found = true;
                             break;
                         }
@@ -230,5 +271,50 @@ export class GraphViewer {
         }
         else
             this.selection.arcs = [];
+    }
+}
+
+export class ForceDirectedGraphCalculator {
+    static #iterations = 100;
+    static #idealDistance = 200;
+    static #forceConstant = 0.1;
+    static #repulsionConstant = 0.002;
+    static #gravityConstant = 0.0001;
+    static repositionNodes(graph, width, height, iterations) {
+        let newPositions = new Map();
+        iterations = iterations || this.#iterations;
+        for (let i = 0; i < iterations; i++) {
+            // Calculate forces
+            for (let nodeId in graph.nodeData) {
+                let node = graph.nodeData[nodeId];
+                let force = Vector2.origin();
+                for (let otherId of graph.getNeighbours(nodeId)) {
+                    if (nodeId === otherId) continue;
+                    let other = graph.nodeData[otherId];
+                    let delta = other.position.sub(node.position);
+                    let distance = delta.length - this.#idealDistance;
+
+                    force = force.add(delta.normalise().mul(this.#forceConstant * distance));
+                }
+                // Repulsion forces
+                for (let otherId in graph.nodeData) {
+                    if (nodeId === otherId) continue;
+                    let other = graph.nodeData[otherId];
+                    let delta = other.position.sub(node.position);
+                    let distance = Math.max(delta.length, 0.1);
+                    // repulsion
+                    //if (distance < this.#idealDistance)
+                    force = force.sub(delta.mul(this.#idealDistance * this.#idealDistance / distance / distance * this.#repulsionConstant));
+                    // gravity
+                    force = force.add(new Vector2(width / 2, height / 2).sub(node.position).mul(this.#gravityConstant));
+                }
+                newPositions.set(nodeId, node.position.add(force));
+            }
+        }
+        // apply positions
+        for (let nodeId of newPositions.keys()) {
+            graph.nodeData[nodeId].position = newPositions.get(nodeId);
+        }
+        return graph;
     }
 }
