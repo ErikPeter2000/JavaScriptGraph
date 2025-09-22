@@ -113,26 +113,7 @@ export class GraphViewer {
         const r32 = r3 / 2;
         this.ctx.fillStyle = Palette.backgroundColor;
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-        this.ctx.strokeStyle = Palette.gridColor;
-        this.ctx.lineWidth = 1;
-        let cellsX = Math.ceil(this.canvas.width / this.#gridSize / 1.5);
-        let startX = this.viewPreview.x % (this.#gridSize * 3) - this.#gridSize * 3;
-        let cellsY = Math.ceil(this.canvas.height / this.#gridSize / r3);
-        let startY = this.viewPreview.y % (this.#gridSize * r3) - this.#gridSize * r3;
-        this.ctx.beginPath();
-        for (let x = -1; x < cellsX + 3; x++) {
-            let even = x % 2 === 0;
-            for (let y = 0; y < cellsY + 1; y++) {
-                let cx = x * 1.5 * this.#gridSize + startX;
-                let cy = y * r3 * this.#gridSize + (even ? 0 : r32 * this.#gridSize) + startY;
-                this.ctx.moveTo(cx, cy + this.#gridSize * r32);
-                this.ctx.lineTo(cx + this.#gridSize * 0.5, cy);
-                this.ctx.lineTo(cx + this.#gridSize * 1.5, cy);
-                this.ctx.lineTo(cx + this.#gridSize * 2, cy + this.#gridSize * r32);
-            }
-        }
-        this.ctx.closePath();
-        this.ctx.stroke();
+        this.ctx.fill();
     }
     drawGraph() {
         this.ctx.save();
