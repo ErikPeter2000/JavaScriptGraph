@@ -1,52 +1,72 @@
-<head>
-    <style>
-        canvas{
-            width: 100%;
-            height: 100%;            
-        }
-        html, body{
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-        }
-    </style>
-    <title>Canvas</title>
-    <meta charset="utf-8">
-</head>
+<!doctype html>
 
-<body>
+<html lang="en-GB">
+  <head>
+    <style>
+      canvas {
+        width: 100%;
+        height: 100%;
+      }
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+      }
+    </style>
+    <title>Grpah Viewer</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
+
+  <body>
     <canvas id="canvas"></canvas>
     <script type="module">
-        import {GraphViewer, ForceDirectedGraphCalculator} from './graph-viewer.js';
-        import {Graph, NodeData, ArcData} from './graph.js';
-        import {Vector2} from './vector2.js';
-        const canvas = document.getElementById('canvas');
-        function createRandomGraph(nodeCount, arcCount){
-            let data = {
-                nodes: [],
-                arcs: []
-            }
-            for(let i = 0; i < nodeCount; i++){
-                let position = Vector2.random(canvas.width, canvas.height);
-                data.nodes.push({position: {x: position.x, y: position.y}, label: i.toString()});
-            }
-            for(let i = 0; i < arcCount; i++){
-                let from = Math.floor(Math.random() * nodeCount);
-                let to = Math.floor(Math.random() * nodeCount);
-                if(from != to){
-                    data.arcs.push({fromId: from, toId: to, label: i.toString()});
-                }
-                else{
-                    i--;
-                }
-            }
-            return data;
+      import {
+        GraphViewer,
+        ForceDirectedGraphCalculator,
+      } from "./graph-viewer.js";
+      import { Graph, NodeData, ArcData } from "./graph.js";
+      import { Vector2 } from "./vector2.js";
+
+      const canvas = document.getElementById("canvas");
+
+      function createRandomGraph(nodeCount, arcCount) {
+        let data = {
+          nodes: [],
+          arcs: [],
+        };
+        for (let i = 0; i < nodeCount; i++) {
+          let position = Vector2.random(canvas.width, canvas.height);
+          data.nodes.push({
+            position: { x: position.x, y: position.y },
+            label: i.toString(),
+          });
         }
-        let data = createRandomGraph(40, 30);
-        let graph = Graph.parseObject(data);
-        graph = ForceDirectedGraphCalculator.repositionNodes(graph, canvas.width, canvas.height);
-        const graphViewer = new GraphViewer(canvas, graph);
-        graphViewer.recalculatePositions();
-        graphViewer.startRendering();
+        for (let i = 0; i < arcCount; i++) {
+          let from = Math.floor(Math.random() * nodeCount);
+          let to = Math.floor(Math.random() * nodeCount);
+          if (from != to) {
+            data.arcs.push({ fromId: from, toId: to, label: i.toString() });
+          } else {
+            i--;
+          }
+        }
+        return data;
+      }
+
+      let data = createRandomGraph(40, 30);
+      let graph = Graph.parseObject(data);
+      graph = ForceDirectedGraphCalculator.repositionNodes(
+        graph,
+        canvas.width,
+        canvas.height,
+      );
+
+      const graphViewer = new GraphViewer(canvas, graph);
+      graphViewer.recalculatePositions();
+      graphViewer.startRendering();
     </script>
-</body>
+  </body>
+</html>
+
