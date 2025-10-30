@@ -1,0 +1,14 @@
+{
+  "name": "javascriptgraph",
+  "private": true,
+  "main": "server.ts",
+  "scripts": {
+    "dev": "bun run server.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
+}

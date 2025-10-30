@@ -26,7 +26,7 @@
         GraphViewer,
         ForceDirectedGraphCalculator,
       } from "./graph-viewer.js";
-      import { Graph, NodeData, ArcData } from "./graph.js";
+      import { Graph } from "./graph.js";
       import { Vector2 } from "./vector2.js";
 
       const canvas = document.getElementById("canvas");
@@ -44,10 +44,10 @@
           });
         }
         for (let i = 0; i < arcCount; i++) {
-          let from = Math.floor(Math.random() * nodeCount);
-          let to = Math.floor(Math.random() * nodeCount);
-          if (from != to) {
-            data.arcs.push({ fromId: from, toId: to, label: i.toString() });
+          let fromId = Math.floor(Math.random() * nodeCount);
+          let toId = Math.floor(Math.random() * nodeCount);
+          if (fromId != toId) {
+            data.arcs.push({ fromId, toId, label: i.toString() });
           } else {
             i--;
           }
