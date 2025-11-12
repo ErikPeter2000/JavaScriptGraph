@@ -62,6 +62,7 @@ export class GraphViewer {
   #centerScreen = new Vector2(window.innerWidth / 2, window.innerHeight / 2);
   #lastTime = 0;
   #zoomFactor = 1.1;
+  #physicsEnabled = false;
 
   constructor(canvas, graph) {
     this.canvas = canvas;
@@ -96,6 +97,12 @@ export class GraphViewer {
   }
   get dpr() {
     return window.devicePixelRatio || 1;
+  }
+  get physicsEnabled() {
+    return this.#physicsEnabled;
+  }
+  set physicsEnabled(value) {
+    this.#physicsEnabled = value;
   }
 
   addEventListener(type, listener) {
@@ -243,8 +250,9 @@ export class GraphViewer {
     this.ctx.translate(pos.x, pos.y);
     this.ctx.scale(this.viewScale, this.viewScale);
     this.ctx.translate(this.#centerScreen.x, this.#centerScreen.y);
-    this.graph = ForceDirectedGraphCalculator.repositionNodes(this.graph, this.canvas.width, this.canvas.height, 2, this.selection.nodes.map(n => n.id));
-    //this.recalculatePositions();
+    if (this.physicsEnabled) {
+      this.graph = ForceDirectedGraphCalculator.repositionNodes(this.graph, this.canvas.width, this.canvas.height, 2, this.selection.nodes.map(n => n.id));
+    }
     this.graph.draw(this.canvas, this.ctx, this.selection);
     this.ctx.restore();
   }

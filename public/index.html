@@ -55,15 +55,11 @@
         return data;
       }
 
-      let data = createRandomGraph(40, 30);
+      let data = createRandomGraph(30, 30);
       let graph = Graph.parseObject(data);
-      graph = ForceDirectedGraphCalculator.repositionNodes(
-        graph,
-        canvas.width,
-        canvas.height,
-      );
 
       const graphViewer = new GraphViewer(canvas, graph);
+      graphViewer.physicsEnabled = true;
       graphViewer.recalculatePositions();
       graphViewer.startRendering();
     </script>

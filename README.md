@@ -55,6 +55,11 @@ const graph = Graph.parseObject(data);
 
 // Create and start the graph viewer
 const graphViewer = new GraphViewer(canvas, graph);
+
+// Enable force-directed graph physics
+graphViewer.physicsEnabled = true;
+
+// Start the render loop
 graphViewer.startRendering();
 ```
 
