@@ -328,7 +328,7 @@ export class Graph {
         canvas,
         ctx,
         this,
-        selection.nodes.includes(nodeId),
+        selection.nodes.some((n) => n.id === nodeId),
       );
     }
   }
