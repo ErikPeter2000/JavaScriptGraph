@@ -1,13 +1,22 @@
 # JavaScriptGraph
 
-A simple web-based graph visualiser built with vanilla JavaScript. This project provides an interactive interface for visualising and exploring graph structures in your browser.
+A simple web-based graph visualiser built with vanilla JavaScript. This project provides an interactive interface for visualising graph structures in your browser.
 
 ## Features
 
 - Interactive graph visualisation
-- Vector-based rendering
-- Color palette support
 - Real-time graph manipulation
+    - Click and drag nodes to reposition them
+    - Double-click a node to focus on it
+    - Right-click to reset view
+- Node and arc selection
+- Force-directed graph physics simulation
+- Status text display
+- Color palette support
+- Vector-based rendering
+- Hexagonal grid background
+
+![Demo Screenshot](.github/demo.webp)
 
 ## Getting Started
 
@@ -65,7 +74,7 @@ graphViewer.startRendering();
 
 ### Selection Changed Events
 
-`GraphViewer` emits a `selectionchanged` event whenever the selection of nodes or arcs changes. The even data contains a `detail` property which can be used to access the currently selected node only. This can be useful for updating UI elements based on user selection.
+`GraphViewer` emits a `selectionchanged` event whenever the selection of nodes or arcs changes. The event data contains a `detail` property which can be used to access the currently selected node only. This can be useful for updating UI elements based on user selection.
 
 ```js
 selectionchanged: { 

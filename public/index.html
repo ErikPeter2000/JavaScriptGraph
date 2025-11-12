@@ -55,11 +55,11 @@
         return data;
       }
 
-      let data = createRandomGraph(30, 30);
+      let data = createRandomGraph(10, 10);
       let graph = Graph.parseObject(data);
 
       const graphViewer = new GraphViewer(canvas, graph);
-      graphViewer.physicsEnabled = true;
+      graphViewer.physicsEnabled = false;
       graphViewer.recalculatePositions();
       graphViewer.startRendering();
     </script>
