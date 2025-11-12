@@ -63,6 +63,20 @@ graphViewer.physicsEnabled = true;
 graphViewer.startRendering();
 ```
 
+### Selection Changed Events
+
+`GraphViewer` emits a `selectionchanged` event whenever the selection of nodes or arcs changes. The even data contains a `detail` property which can be used to access the currently selected node only. This can be useful for updating UI elements based on user selection.
+
+```js
+selectionchanged: { 
+    detail: { 
+        id:    // ID of the most recently selected node
+        label: // Label of the most recently selected node
+    },
+    ... 
+}
+```
+
 ## Project Structure
 
 - `public/` - Static web assets
